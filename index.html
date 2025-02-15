@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Optimized for any screen (TV, mobile, desktop) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>TV Leaderboard - Cupid’s Adventure</title>
+  <style>
+    /* Reset & box-sizing */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      color: white;
+      font-family: 'Good Old DOS';
+      position: relative;
+    }
+    /* Main container for content */
+    #container {
+      width: 100%;
+      max-width: 1920px;
+      height: 100%;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    /* Title image styling */
+    #titleImage {
+      width: 70%;
+      max-width: 500px;
+      height: auto;
+      margin-bottom: 0px;
+    }
+    #leaderboardTitle {
+  font-size: 2rem;      /* Adjust size as needed */
+  font-weight: bold;
+  color: red;
+  font-family: 'Good Old DOS';
+  margin-bottom: 10px;
+  text-transform: uppercase;  /* Makes it all caps */
+}
+
+    /* Leaderboard container styling */
+    #leaderboardContainer {
+      width: 100%;
+      max-width: 800px;
+      text-align: center;
+      font-size: 1rem; /* Adjust as needed */
+    }
+    /* Each leaderboard entry */
+    #leaderboardContainer div {
+      padding: 10px;
+      border-bottom: 1px solid #555;
+    }
+    /* QR Code styling for all corners */
+    .qrCorner {
+      position: absolute;
+      width: 160px;  /* Adjust size as needed */
+      height: 160px;
+      z-index: 1000;
+    }
+    /* Top-left corner */
+    #qrTopLeft {
+      top: 10px;
+      left: 10px;
+    }
+    /* Top-right corner */
+    #qrTopRight {
+      top: 10px;
+      right: 10px;
+    }
+    /* Bottom-left corner */
+    #qrBottomLeft {
+      bottom: 10px;
+      left: 10px;
+    }
+    /* Bottom-right corner */
+    #qrBottomRight {
+      bottom: 10px;
+      right: 10px;
+    }
+  </style>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script>
+    // Your Firebase configuration (replace with your own config values)
+    var firebaseConfig = {
+      apiKey: "AIzaSyAxUpfRnzgh8cVTXiMwQV2KiG0y_Nm891U",
+    authDomain: "my-bloody-valentine.firebaseapp.com",
+    projectId: "my-bloody-valentine",
+    storageBucket: "my-bloody-valentine.firebasestorage.app",
+    messagingSenderId: "82416684644",
+    appId: "1:82416684644:web:2f4ecd6836b48a527a5971",
+    measurementId: "G-X2GC71M24Q"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    // Initialize Firestore
+    const db = firebase.firestore();
+  </script>
+</head>
+<body>
+  <!-- QR Code elements in the 4 corners -->
+  <div id="qrTopLeft" class="qrCorner">
+    <img src="qrcode.png" alt="QR Code" style="width:100%; height:100%;">
+  </div>
+  <div id="qrTopRight" class="qrCorner">
+    <img src="qrcode.png" alt="QR Code" style="width:100%; height:100%;">
+  </div>
+  <div id="qrBottomLeft" class="qrCorner">
+    <img src="qrcode.png" alt="QR Code" style="width:100%; height:100%;">
+  </div>
+  <div id="qrBottomRight" class="qrCorner">
+    <img src="qrcode.png" alt="QR Code" style="width:100%; height:100%;">
+  </div>
+
+  <div id="container">
+    <!-- Title image as header -->
+    <img id="titleImage" src="assets/titlescreen.png" alt="Title Screen">
+    <!-- Leaderboard container -->
+    <div id="leaderboardContainer">
+      <!-- Leaderboard entries will be injected here -->
+    </div>
+  </div>
+  <script>
+    
+function refreshLeaderboard() {
+  db.collection("leaderboard")
+    .orderBy("score", "desc")
+    .limit(10)
+    .get()
+    .then(querySnapshot => {
+      const leaderboardContainer = document.getElementById('leaderboardContainer');
+      // Clear out old entries and add header
+      leaderboardContainer.innerHTML = "<div id='leaderboardTitle'>LEADERBOARD</div>";
+      
+      const docs = querySnapshot.docs;
+      for (let i = 0; i < docs.length; i++) {
+        const data = docs[i].data();
+        const entryDiv = document.createElement("div");
+        // Only display name and score
+        entryDiv.textContent = `${i + 1}. ${data.name} - ${data.score}`;
+        leaderboardContainer.appendChild(entryDiv);
+      }
+    })
+    .catch(error => {
+      console.error("Error loading leaderboard: ", error);
+    });
+}
+
+    
+    // Initial load of leaderboard
+    refreshLeaderboard();
+    // Auto-refresh every 2 minutes (120000ms)
+    setInterval(refreshLeaderboard, 120000);
+  </script>
+</body>
+</html>
